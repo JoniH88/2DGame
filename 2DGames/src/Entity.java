@@ -20,5 +20,4 @@ public abstract class Entity {
     protected abstract void update(Input input);
 
     protected abstract void render(Graphics2D g);
-
 }

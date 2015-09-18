@@ -23,7 +23,7 @@ public class SpriteSheet {
         index = index % spriteCount;
         int x = index % spriteInWidth * scale;
         int y = index / spriteInWidth * scale;
-        System.out.println(index + " | " + x + " | " + y);
+        //System.out.println(index + " | " + x + " | " + y);
         return sheet.getSubimage(x, y, scale, scale);
     }
 }

@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.Random;
 
 /**
  * Created by JoniH on 05.09.2015.
@@ -14,8 +15,12 @@ public class Engine implements Runnable{
     private TextureAtlas    atlas;
     private SpriteSheet     sheet;
     private Sprite          sprite;
-    private Bullet          bullet;
-    private Ii              ii;
+    private Bullet[]        bullet;
+    private Enemy[]         enemy;
+
+    private Random          random      = new Random();
+    private int             bulletCount = 29;
+    private int             enemyCount  = 29;
 
     //temp
     private float   d       = 0;
@@ -34,9 +39,12 @@ public class Engine implements Runnable{
         atlas   = new TextureAtlas(Const.ATLAS_FILE_NAME);
         sheet   = new SpriteSheet(atlas.cut(31, 61, 18, 36), 1, 18);
         sprite  = new Sprite(sheet, 2);
-        bullet  = new Bullet(atlas.cut(362, 66, 3, 8), Const.BULLET_SPEED);
-        ii      = new Ii(atlas);
-
+        bullet  = new Bullet[100];
+        enemy   = new Enemy[100];
+        for (int i = 0; i < 100; i ++ ){
+            bullet[i]   = new Bullet(atlas.cut(362, 66, 3, 8), Const.BULLET_SPEED);
+            enemy[i]    = new Enemy(atlas.cut(8, 108, 18, 18), 1);
+        }
     }
 
     public synchronized void start(){
@@ -61,33 +69,97 @@ public class Engine implements Runnable{
         clearUp();
     }
 
+    private void bulletAdd(){
+        if(bulletCount > 15) {
+           bulletCount = 0;
+            for (int i = 0; i < 10; i++) {
+                if (!bullet[i].activ) {
+                    bullet[i].add(x + 12, y - 2);
+                    //System.out.println(i);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void enemyAdd(){
+        if(enemyCount > 30){
+            enemyCount = 0;
+            for(int i = 0; i < 30; i ++) {
+                if (!enemy[i].activ) {
+                    enemy[i].add(random.nextInt(Const.FRAME_WIDTH - 20));
+                    break;
+                }
+            }
+        }
+    }
+
+    private void hit(){
+        for(int i = 0; i < 30; i ++) {
+            if(enemy[i].activ) {
+                float xe1 = enemy[i].getX();
+                float xe3 = xe1 + enemy[i].getWidth();
+                float ye1 = enemy[i].getY();
+                float ye3 = ye1 + enemy[i].getHeight();
+                for(int j = 0; j < 10; j ++){
+                    if(bullet[j].activ){
+                        float xb4 = bullet[j].getX();
+                        float xb3 = xb4 + bullet[j].getWidth() * 0.5f;
+                        float xb2 = xb4 + bullet[j].getWidth();
+                        float yb1 = bullet[j].getY();
+                        float yb3 = yb1 + bullet[j].getHeight();
+                        float yb4 = yb1 + bullet[j].getHeight() * 0.2f;
+                        if(     xb4 >= xe1 && xb4 <= xe3 && yb4 >= ye1 && yb4 <= ye3 ||
+                                yb3 >= ye1 && yb3 <= ye3 && xb3 >= xe1 && xb3 <= xe3 ||
+                                xb2 >= xe1 && xb2 <= xe3 && yb4 >= ye1 && yb4 <= ye3 ||
+                                yb1 >= ye1 && yb1 <= ye3 && xb3 >= xe1 && xb3 <= xe3 ){
+                            bullet[j].destroy();
+                            enemy[i].destroy();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void update(){
 
         if(input.getKey(KeyEvent.VK_UP)){
             y -= step;
-            if(y < 0) y = Const.FRAME_HEIGHT - 5;
+            if(y < 0) y = 0;
         }
         if(input.getKey(KeyEvent.VK_DOWN)){
             y += step;
+            if(y > Const.FRAME_HEIGHT - 35) y = Const.FRAME_HEIGHT - 35;
         }
         if(input.getKey(KeyEvent.VK_LEFT)){
             x -= step;
+            if(x < 0) x = 0;
         }
         if(input.getKey(KeyEvent.VK_RIGHT)){
             x += step;
+            if(x > Const.FRAME_WIDTH - 35) x = Const.FRAME_WIDTH - 35;
         }
         if(input.getKey(KeyEvent.VK_SPACE)){
-            bullet.add(x + 12, y - 2);
+            bulletAdd();
         }
-        bullet.update();
-        ii.update();
+        for(int i = 0; i < 30; i ++) {
+            if (bullet[i].activ)    bullet[i].update();
+            if (enemy[i].activ)     enemy[i].update();
+        }
+        bulletCount ++;
+        enemyCount ++;
+        enemyAdd();
+        hit();
     }
 
     private void render(){
 
         display.clear();
-        bullet.render(graphics);
-        ii.render(graphics);
+        for(int i = 0; i < 30; i ++) {
+            bullet[i].render(graphics);
+            enemy[i].render(graphics);
+        }
         sprite.render(graphics, x, y);
         display.swapBuffers();
     }

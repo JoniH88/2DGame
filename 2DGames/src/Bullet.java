@@ -5,21 +5,40 @@ import java.awt.image.BufferedImage;
 /**
  * Created by JoniH on 07.09.2015.
  */
-public class Bullet {
-
+public class Bullet extends EntityMy{
+/*
     private float           speed;
     private BufferedImage   image;
     private float           bullet[][];
     private int             count = 29;
+*/
 
     Bullet(BufferedImage image, float speed){
 
         this.speed  = speed;
         this.image  = image;
-        bullet = new float[100][3];
-        destroy();
+        this.scale  = 2.0f;
     }
 
+    public void update(){
+
+        y -= speed;
+        if(y < -10) destroy();
+    }
+
+    public void render(Graphics2D g){
+
+            if(activ)
+                g.drawImage(image, (int)x, (int)y, (int) (image.getWidth() * scale),
+                        (int) (image.getHeight() * scale), null);
+    }
+
+    @Override
+    public void destroy(){
+        activ = false;
+    }
+
+/*
     public void add(int x, int y){
         if(count > 20) {
             count = 0;
@@ -56,4 +75,6 @@ public class Bullet {
             bullet[i][0] = 0;
         }
     }
+
+    public void getX(){}*/
 }
