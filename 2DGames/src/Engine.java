@@ -17,6 +17,7 @@ public class Engine implements Runnable{
     private Sprite          sprite;
     private Bullet[]        bullet;
     private Enemy[]         enemy;
+    private Explosion[]     explosion;
 
     private Random          random      = new Random();
     private int             bulletCount = 29;
@@ -39,11 +40,13 @@ public class Engine implements Runnable{
         atlas   = new TextureAtlas(Const.ATLAS_FILE_NAME);
         sheet   = new SpriteSheet(atlas.cut(31, 61, 18, 36), 1, 18);
         sprite  = new Sprite(sheet, 2);
-        bullet  = new Bullet[100];
-        enemy   = new Enemy[100];
-        for (int i = 0; i < 100; i ++ ){
-            bullet[i]   = new Bullet(atlas.cut(362, 66, 3, 8), Const.BULLET_SPEED);
-            enemy[i]    = new Enemy(atlas.cut(8, 108, 18, 18), 1);
+        bullet  = new Bullet[Const.OBJECT_NUM_MAX];
+        enemy   = new Enemy[Const.OBJECT_NUM_MAX];
+        explosion = new Explosion[Const.OBJECT_NUM_MAX];
+        for (int i = 0; i < Const.OBJECT_NUM_MAX; i ++ ){
+            bullet[i]       = new Bullet(atlas.cut(362, 66, 3, 8));
+            enemy[i]        = new Enemy(atlas.cut(8, 108, 18, 18));
+            explosion[i]    = new Explosion(atlas.cut(200, 220, 122, 34));
         }
     }
 
@@ -87,7 +90,7 @@ public class Engine implements Runnable{
             enemyCount = 0;
             for(int i = 0; i < 30; i ++) {
                 if (!enemy[i].activ) {
-                    enemy[i].add(random.nextInt(Const.FRAME_WIDTH - 20));
+                    enemy[i].add(random.nextInt(Const.FRAME_WIDTH - 20), 0, 1);
                     break;
                 }
             }
@@ -112,9 +115,18 @@ public class Engine implements Runnable{
                         if(     xb4 >= xe1 && xb4 <= xe3 && yb4 >= ye1 && yb4 <= ye3 ||
                                 yb3 >= ye1 && yb3 <= ye3 && xb3 >= xe1 && xb3 <= xe3 ||
                                 xb2 >= xe1 && xb2 <= xe3 && yb4 >= ye1 && yb4 <= ye3 ||
-                                yb1 >= ye1 && yb1 <= ye3 && xb3 >= xe1 && xb3 <= xe3 ){
+                                yb1 >= ye1 && yb1 <= ye3 && xb3 >= xe1 && xb3 <= xe3 ) {
                             bullet[j].destroy();
-                            enemy[i].destroy();
+                            enemy[i].pushDamage(bullet[j].getDamage());
+                            if (enemy[i].getHealth() <= 0) {
+                                for (int l = 0; l < Const.OBJECT_NUM_MAX; l++) {
+                                    if (!explosion[l].activ) {
+                                        explosion[l].add((int) (enemy[i].getX() + enemy[i].getWidth() / 2),
+                                                (int) (enemy[i].getY() + enemy[i].getHeight() / 2));
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -146,6 +158,7 @@ public class Engine implements Runnable{
         for(int i = 0; i < 30; i ++) {
             if (bullet[i].activ)    bullet[i].update();
             if (enemy[i].activ)     enemy[i].update();
+            explosion[i].update();
         }
         bulletCount ++;
         enemyCount ++;
@@ -159,6 +172,7 @@ public class Engine implements Runnable{
         for(int i = 0; i < 30; i ++) {
             bullet[i].render(graphics);
             enemy[i].render(graphics);
+            explosion[i].render(graphics);
         }
         sprite.render(graphics, x, y);
         display.swapBuffers();

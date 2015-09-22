@@ -17,7 +17,7 @@ public class Ii {
         enemy       = new Enemy[Const.ENEMY_NUM_MAX];
 
         for(int i = 0; i < Const.ENEMY_NUM_MAX; i ++){
-            enemy[i] = new Enemy(atlas.cut(8, 108, 18, 18), 1);
+            enemy[i] = new Enemy(atlas.cut(8, 108, 18, 18));
         }
     }
 

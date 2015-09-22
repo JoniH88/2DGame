@@ -49,14 +49,6 @@ public class Display{
         Arrays.fill(bufferData, clearColor);
     }
 
-    public static void render(int x, int y){
-
-        clear();
-        bufferGraphics.setColor(Color.ORANGE);
-        bufferGraphics.fillOval(x, y, 70, 70);
-        swapBuffers();
-     }
-
     public static void swapBuffers(){
 
         Graphics g = bufferStrategy.getDrawGraphics();

@@ -6,24 +6,20 @@ import java.awt.image.BufferedImage;
  */
 public abstract class EntityMy {
 
+    protected float         damage;
+    protected float         health;
     protected float         speed;
+    protected int           level;
     protected float         x;
     protected float         y;
     protected float         scale;
     protected boolean       activ = false;
     protected BufferedImage image;
 
-    protected void add(int x, int y){
 
-            this.x = x;
-            this.y = y;
-            activ = true;
-    }
+    protected void pushDamage(float damage){
 
-    protected void add(int x){
-
-            this.x = x;
-            activ = true;
+        health -= damage;
     }
 
     protected float getX(){return x;}
@@ -34,11 +30,17 @@ public abstract class EntityMy {
 
     protected float getHeight(){return image.getHeight() * scale;}
 
+    protected float getHealth(){return health;}
+
+    protected float getDamage(){return damage;}
+
     protected void setX(float x){this.x = x;}
 
     protected void setY(float y){this.y = y;}
 
     protected abstract void destroy();
+
+    protected abstract void delete();
 
     protected abstract void update();
 
